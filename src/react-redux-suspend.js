@@ -10,7 +10,7 @@ export const suspend = (
   watchAction
   ) => UnwrappedComponent => {
   
-  let WrappedComponent = props => {
+  let SuspendableComponent = props => {
     if (props.isInvalid) {
       // fire off resolution if defined
       if (props.resolution) {
@@ -43,9 +43,9 @@ export const suspend = (
   
 
   // yes it uses 'connect' under the hood
-  WrappedComponent = connect(mapStateToProps)(WrappedComponent);
+  SuspendableComponent = connect(mapStateToProps)(SuspendableComponent);
 
-  return WrappedComponent;
+  return SuspendableComponent;
 };
 
 export const actionTypes = {
