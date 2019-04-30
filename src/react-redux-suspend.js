@@ -6,15 +6,15 @@ import createSagaMiddleware from "redux-saga";
 // heres our HOC, so we can be fancy pants and decorate our React components
 export const suspend = (
   mapStateToInvalidation, 
-  mapPropsToResolution, 
+  mapStateToResolution, 
   watchAction
   ) => UnwrappedComponent => {
   
-  let WrappedComponent = props => {
+  let SuspendableComponent = props => {
     if (props.isInvalid) {
       // fire off resolution if defined
-      if (mapPropsToResolution) {
-        props.dispatch(mapPropsToResolution(props));
+      if (props.resolution) {
+        props.dispatch(props.resolution);
       }
 
       throw new Promise(resolve => {
@@ -22,7 +22,10 @@ export const suspend = (
         // note that we're also adding this Promise's the resolve fn in the payload
         // this is the magic callback that tells the React.Suspense component to go away
         props.dispatch(
-          actionCreators.suspend({ mapStateToInvalidation, watchAction, unsuspend: resolve })
+          actionCreators.suspend({ 
+            mapStateToInvalidation: state => mapStateToInvalidation(state, props), // curry props param
+            watchAction, 
+            unsuspend: resolve })
         );
       });
     }
@@ -33,14 +36,16 @@ export const suspend = (
     return <UnwrappedComponent {...otherProps} />;
   };
 
-  const mapStateToProps = state => ({
-    isInvalid: mapStateToInvalidation(state)
+  const mapStateToProps = (state, props) => ({
+    isInvalid: mapStateToInvalidation(state, props),
+    resolution: mapStateToResolution && mapStateToResolution(state, props) //handles mapStateToReoslution undefined
   });
+  
 
   // yes it uses 'connect' under the hood
-  WrappedComponent = connect(mapStateToProps)(WrappedComponent);
+  SuspendableComponent = connect(mapStateToProps)(SuspendableComponent);
 
-  return WrappedComponent;
+  return SuspendableComponent;
 };
 
 export const actionTypes = {

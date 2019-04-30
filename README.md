@@ -59,12 +59,12 @@ Counter = connect(
 /* now for the extra part */
 
 const mapStateToInvalidation = state => state === null;
-const mapPropsToResolution = props => ({ type: "INIT_ASYNC" });
+const mapStateToResolution = state => ({ type: "INIT_ASYNC" });
 const watchAction = action => action.type === "INIT";
 
 Counter = suspend(
   mapStateToInvalidation, 
-  mapPropsToResolution, 
+  mapStateToResolution, 
   watchAction
 )(Counter);
 ```
