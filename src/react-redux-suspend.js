@@ -6,15 +6,15 @@ import createSagaMiddleware from "redux-saga";
 // heres our HOC, so we can be fancy pants and decorate our React components
 export const suspend = (
   mapStateToInvalidation, 
-  mapPropsToResolution, 
+  mapStateToResolution, 
   watchAction
   ) => UnwrappedComponent => {
   
   let WrappedComponent = props => {
     if (props.isInvalid) {
       // fire off resolution if defined
-      if (mapPropsToResolution) {
-        props.dispatch(mapPropsToResolution(props));
+      if (mapStateToResolution) {
+        props.dispatch(props.resolution);
       }
 
       throw new Promise(resolve => {
@@ -33,9 +33,11 @@ export const suspend = (
     return <UnwrappedComponent {...otherProps} />;
   };
 
-  const mapStateToProps = state => ({
-    isInvalid: mapStateToInvalidation(state)
+  const mapStateToProps = (state, props) => ({
+    isInvalid: mapStateToInvalidation(state, props),
+    resolution: mapStateToResolution(state, props)
   });
+  
 
   // yes it uses 'connect' under the hood
   WrappedComponent = connect(mapStateToProps)(WrappedComponent);
