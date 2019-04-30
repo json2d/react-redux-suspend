@@ -13,7 +13,7 @@ export const suspend = (
   let WrappedComponent = props => {
     if (props.isInvalid) {
       // fire off resolution if defined
-      if (mapStateToResolution) {
+      if (props.resolution) {
         props.dispatch(props.resolution);
       }
 
@@ -22,7 +22,10 @@ export const suspend = (
         // note that we're also adding this Promise's the resolve fn in the payload
         // this is the magic callback that tells the React.Suspense component to go away
         props.dispatch(
-          actionCreators.suspend({ mapStateToInvalidation, watchAction, unsuspend: resolve })
+          actionCreators.suspend({ 
+            mapStateToInvalidation,
+            watchAction, 
+            unsuspend: resolve })
         );
       });
     }
@@ -35,7 +38,7 @@ export const suspend = (
 
   const mapStateToProps = (state, props) => ({
     isInvalid: mapStateToInvalidation(state, props),
-    resolution: mapStateToResolution(state, props)
+    resolution: mapStateToResolution && mapStateToResolution(state, props) //handles mapStateToReoslution undefined
   });
   
 
