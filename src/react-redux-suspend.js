@@ -23,7 +23,7 @@ export const suspend = (
         // this is the magic callback that tells the React.Suspense component to go away
         props.dispatch(
           actionCreators.suspend({ 
-            mapStateToInvalidation,
+            mapStateToInvalidation: state => mapStateToInvalidation(state, props), // curry props param
             watchAction, 
             unsuspend: resolve })
         );
